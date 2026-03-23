@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import routes from './views';
+import routes from './views/routes';
 
 
 // Create an Express application

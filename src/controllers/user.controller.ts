@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import config from "../config/env";
 import { User } from "../models/user.model";
 
+
 const register = async (req: Request, res: Response) => {
     try {
         const { username, email, password, role } = req.body;
@@ -58,4 +59,9 @@ const register = async (req: Request, res: Response) => {
         error: error instanceof Error ? error.message : error,
     });
     }
+}
+
+
+export const userController = {
+    register,
 }
