@@ -1,15 +1,9 @@
 
-export interface User {
-  _id: string;
+export interface IUser {
   username: string;
   email: string;
+  password?: string;
   role: 'employee' | 'employer' | 'admin';
 }
 
-export interface UserCreate {
-    username: string;
-    email: string;
-    password?: string;
-    role: 'employee' | 'employer' | 'admin';
-}
 
