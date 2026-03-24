@@ -1,14 +1,18 @@
 import bcrypt from 'bcrypt';
-import { Schema, model } from 'mongoose';
+import { Schema, model, HydratedDocument, Model } from 'mongoose';
 import config from '../config/env';
-import {IUser} from '../types/user.types'
+import {IUser, IUserMethods} from '../types/user.types'
+
+type UserDocument = HydratedDocument<IUser, IUserMethods>;
+type UserModel = Model<IUser, {}, IUserMethods>;
 
 // creating user schema
-const userSchema = new Schema<IUser>(
+// 👇 important: 3rd generic = methods
+const userSchema = new Schema<IUser, IUserMethods>(
     {
     username: {type: String, required: true},
     email: {type: String, required: true, unique: true},
-    password: {type: String, required: true},
+    password: {type: String, required: true, select: false},
     role: {type: String, enum: ['employee', 'employer', 'admin'], required: true, default: 'employee'},
     }, 
     {
@@ -18,7 +22,7 @@ const userSchema = new Schema<IUser>(
 
 
 // pre-save hook to hash password before saving user
-userSchema.pre('save', async function () {
+userSchema.pre('save', async function (this: UserDocument) {
   const user = this;
 
   if (!user.isModified('password')) return;
@@ -42,5 +46,10 @@ userSchema.post('save', function (doc) {
 //   },
 // });
 
+// comparing provided password with hashed password in database
+userSchema.methods.comparePassword = async function (this: UserDocument, plainPassword: string): Promise<boolean> {
+  return bcrypt.compare(plainPassword, this.password as string);
+};
 
-export const User = model<IUser>('User', userSchema);
+
+export const User = model<IUser, UserModel>('User', userSchema);

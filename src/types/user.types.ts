@@ -7,3 +7,6 @@ export interface IUser {
 }
 
 
+export interface IUserMethods {
+  comparePassword(plainPassword: string): Promise<boolean>;
+}

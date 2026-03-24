@@ -1,13 +1,13 @@
 import { Request, Response } from "express";
-// import jwt, {Secret, SignOptions}  from "jsonwebtoken";
 import jwt from "jsonwebtoken";
 import config from "../config/env";
 import { User } from "../models/user.model";
 
 
+// User Registration Controller
 const register = async (req: Request, res: Response) => {
     try {
-        const { username, email, password, role } = req.body;
+        const { username, email, password } = req.body;
 
         // Check if user already exists
         const isUserExist = await User.exists({ email });
@@ -62,6 +62,77 @@ const register = async (req: Request, res: Response) => {
 }
 
 
+// User Login Controller
+const login = async (req: Request, res: Response) => {
+    
+    try {
+        const {email, password} = req.body;
+
+        // check if user exists
+        const user = await User.findOne({email}).select('+password'); // include password field
+
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid email or password",
+            });
+        }
+
+        // compare provided password with hashed password in database
+        const isPasswordMatch = await user.comparePassword(password);
+
+        if (!isPasswordMatch) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid email or password",
+            });
+        }
+
+        // generate JWT token
+        const token = jwt.sign(
+            {
+                userId: user._id,
+                email: user.email,
+                role: user.role,
+            },
+            config.jwt_secret,
+            { 
+                expiresIn: config.jwt_expires_in ?? '1h',
+            }
+        );
+
+        // convert to object and remove password field before sending response
+        const userResponse = user.toObject();
+        delete userResponse.password;
+
+        res.status(200).json({
+            success: true,
+            message: "User logged in successfully",
+            data: userResponse,
+            token,
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error instanceof Error ? error.message : error,
+        });
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
 export const userController = {
     register,
+    login,
 }
