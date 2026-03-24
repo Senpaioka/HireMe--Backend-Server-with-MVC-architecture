@@ -123,7 +123,31 @@ const login = async (req: Request, res: Response) => {
 
 
 
+// user logout controller
+const logout = async (req: Request, res: Response) => {
 
+    try {
+        const token = req.headers.authorization?.split(' ')[1]; // assuming token is sent in Authorization
+
+        if (!token) {
+            return res.status(400).json({
+                success: false,
+                message: "Token is required for logout",
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "User logged out successfully",
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error instanceof Error ? error.message : error,
+        });
+    }
+}
 
 
 
@@ -135,4 +159,5 @@ const login = async (req: Request, res: Response) => {
 export const userController = {
     register,
     login,
+    logout
 }
