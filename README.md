@@ -21,3 +21,17 @@ Initialize a **TypeScript** project by creating a `tsconfig.json` file
 ```
 npx tsc --init
 ```
+
+```
+# admin
+email: admin@mail.com
+password: admin@123
+
+# employee
+email: test@mail.com
+password: test@123
+
+# employer
+email: employer@mail.com
+password: employer@123
+```

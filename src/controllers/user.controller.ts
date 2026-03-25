@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import config from "../config/env";
 import { User } from "../models/user.model";
+import { get } from "http";
 
 
 // User Registration Controller
@@ -151,6 +152,25 @@ const logout = async (req: Request, res: Response) => {
 
 
 
+// get all users controller (admin only)
+const getAllUsers = async (req: Request, res: Response) => {
+
+    try {
+        const users = await User.find().select('-password'); // exclude password field
+
+        res.status(200).json({
+            success: true,
+            message: "Users retrieved successfully",
+            data: users,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error instanceof Error ? error.message : error,
+        });
+    }
+};
 
 
 
@@ -159,5 +179,6 @@ const logout = async (req: Request, res: Response) => {
 export const userController = {
     register,
     login,
-    logout
+    logout,
+    getAllUsers,
 }
