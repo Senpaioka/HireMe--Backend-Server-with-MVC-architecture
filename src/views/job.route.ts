@@ -8,4 +8,10 @@ const router = express.Router();
 // Create a new job listing (employer only)
 router.post('/create', auth, authorize('employer'), jobController.createJob);
 
+// Get all job listings (public)
+router.get('/feeds', jobController.getJobs);
+
+// Get a single job listing by ID (private)
+router.get('/:id', auth, jobController.getSingleJob);
+
 export const jobRoutes = router;
