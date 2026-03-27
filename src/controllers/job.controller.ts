@@ -130,9 +130,95 @@ const getJobsByEmployer = async (req: Request, res: Response) => {
 }
 
 
+// update job (only owner)
+const updateJob = async (req: Request, res: Response) => {
+
+    try {
+        const user = req.user;
+        const {id} = req.params;
+
+        const getJob = await Job.findById(id);
+
+        if (!getJob) {
+            return res.status(404).json({
+                success: false,
+                message: 'Job listing not found',
+            });
+        }
+
+        if (getJob.postedBy.toString() !== user?.userId) {
+            return res.status(403).json({
+                success: false,
+                message: 'Not authorized to update this job listing',
+            });
+        }
+
+        const jobUpdated = await Job.findByIdAndUpdate(id, req.body, { returnDocument: 'after', runValidators: true });
+
+        res.status(200).json({
+            success: true,
+            message: 'Job listing updated successfully',
+            data: jobUpdated,
+        });
+    
+    } catch(error) {
+        res.status(500).json({
+            success: false,
+            message: 'Failed to update job listing',
+            error: error instanceof Error ? error.message : 'Failed to update job listing',
+        });
+    }
+
+}
+
+
+
+
+// Delete job (owner or admin)
+
+// const deleteJob = async (req: Request, res: Response) => {
+//   try {
+//     const user = req.user;
+//     const { id } = req.params;
+
+//     const job = await Job.findById(id);
+
+//     if (!job) {
+//       return res.status(404).json({
+//         success: false,
+//         message: 'Job not found',
+//       });
+//     }
+
+//     const isOwner = job.postedBy.toString() === user?.userId;
+//     const isAdmin = user?.role === 'admin';
+
+//     if (!isOwner && !isAdmin) {
+//       return res.status(403).json({
+//         success: false,
+//         message: 'Not authorized to delete this job',
+//       });
+//     }
+
+//     await Job.findByIdAndDelete(id);
+
+//     res.status(200).json({
+//       success: true,
+//       message: 'Job deleted successfully',
+//     });
+//   } catch (err) {
+//     res.status(500).json({
+//       success: false,
+//       message: err instanceof Error ? err.message : 'Failed to delete job',
+//     });
+//   }
+// };
+
+
 export const jobController = {
     createJob,
     getJobs,
     getSingleJob,
     getJobsByEmployer,
+    updateJob,
 }

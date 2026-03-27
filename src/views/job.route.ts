@@ -17,4 +17,7 @@ router.get('/:id', auth, jobController.getSingleJob);
 // Get all job listings posted by a specific employer (employer only)
 router.get('/employer/listings', auth, authorize('employer'), jobController.getJobsByEmployer);
 
+// update a job listing (employer only)
+router.patch('/update/:id', auth, authorize('employer'), jobController.updateJob);
+
 export const jobRoutes = router;
