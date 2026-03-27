@@ -14,4 +14,7 @@ router.get('/feeds', jobController.getJobs);
 // Get a single job listing by ID (private)
 router.get('/:id', auth, jobController.getSingleJob);
 
+// Get all job listings posted by a specific employer (employer only)
+router.get('/employer/listings', auth, authorize('employer'), jobController.getJobsByEmployer);
+
 export const jobRoutes = router;

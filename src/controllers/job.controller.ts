@@ -100,8 +100,39 @@ const getSingleJob = async (req: Request, res: Response) => {
 }
 
 
+// get all job listings posted by a specific employer
+const getJobsByEmployer = async (req: Request, res: Response) => {
+
+    try {
+        const user = req.user;
+
+        if (!user || user.role !== 'employer') {
+            return res.status(401).json({
+                success: false,
+                message: 'Unauthorized',
+            });
+        }
+
+        const getPostedJobs = await Job.find({ postedBy: user.userId });
+
+        res.status(200).json({
+            success: true,
+            message: 'Job listings retrieved successfully',
+            data: getPostedJobs,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Failed to retrieve job listings',
+            error: error instanceof Error ? error.message : 'Failed to fetch job listings',
+        });
+    }
+}
+
+
 export const jobController = {
     createJob,
     getJobs,
     getSingleJob,
+    getJobsByEmployer,
 }
