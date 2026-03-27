@@ -20,4 +20,7 @@ router.get('/employer/listings', auth, authorize('employer'), jobController.getJ
 // update a job listing (employer only)
 router.patch('/update/:id', auth, authorize('employer'), jobController.updateJob);
 
+// delete a job listing (employer and admin only)
+router.delete('/delete/:id', auth, authorize('employer', 'admin'), jobController.deleteJob);
+
 export const jobRoutes = router;
