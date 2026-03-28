@@ -2,6 +2,7 @@ import express from 'express';
 import { userRoutes } from './user.route';
 import { jobRoutes} from './job.route';
 import { applyRoutes } from './apply.route';
+import { chatRoutes } from './chat.route';
 
 const router = express.Router();
 
@@ -17,6 +18,10 @@ const moduleRoutes = [
     {
         path: '/apply',
         route: applyRoutes,
+    },
+    {
+        path: '/chatgpt',
+        route: chatRoutes,
     }
     
 ];

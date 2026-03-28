@@ -23,5 +23,6 @@ export default {
   bcrypt_salt_rounds: Number(process.env.BCRYPT_SALT_ROUNDS) || 12,
   jwt_secret: requiredEnv('JWT_SECRET') as string,
   jwt_expires_in: (process.env.JWT_EXPIRES_IN ?? '1h') as StringValue,
+  openai_api_key: requiredEnv('OPENAI_API_KEY') as string,
 };
 
