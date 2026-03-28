@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { Types } from "mongoose";
-import { CreateApplicationData } from "../types/apply.types";
+import { CreateApplicationData, UpdateApplicationData } from "../types/apply.types";
 import Application from "../models/apply.model";
 import { Job } from "../models/job.model";
 
@@ -41,14 +41,6 @@ const applyToJob = async (
             });
         }
 
-        // prevent applying to own job
-        // if (jobData.postedBy === user._id.toString()) {
-        //     return res.status(400).json({
-        //         success: false,
-        //         message: 'You cannot apply to your own job'
-        //     });
-        // }
-
         // prevent duplicate applications
         const alreadyApplied = await Application.findOne({
             applicant: user.userId,
@@ -87,10 +79,105 @@ const applyToJob = async (
 }
 
 
+// see all the applications for a job (owner only)
+const getMyApplications = async (req: Request, res: Response) => {
+
+    try {
+        const user = req.user;
+
+        if (!user || user.role !== 'employee') {
+            return res.status(403).json({
+                success: false,
+                message: 'Only employees can view their applications'
+            });
+        }
+
+        const applications = await Application.find({ applicant: user.userId }).populate('job');
+
+        res.status(200).json({
+            success: true,
+            message: 'Applications retrieved successfully',
+            data: applications
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Server error',
+            error: error instanceof Error ? error.message : 'Failed to retrieve applications'
+        });
+    }
+}
+
+
+// update application status (owner only)
+const updateApplicationStatus = async (
+    req: Request<{ id: string }, {}, UpdateApplicationData>,
+    res: Response
+) => {
+
+    try {
+        const user = req.user;
+        const {id} = req.params;
+
+        if (!Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid application ID'
+            });
+        }
+
+        const application = await Application.findById(id).populate('job');
+
+        if (!application) {
+            return res.status(404).json({
+                success: false,
+                message: 'Application not found'
+            });
+        }
+
+        const job = application.job as any; // populated job
+
+        const isOwner = job.employer === user?.userId;
+        const isAdmin = user?.role === 'admin';
+
+        if (!isOwner && !isAdmin) {
+            return res.status(403).json({
+                success: false,
+                message: 'Only the job owner or admin can update application status'
+            });
+        }
+
+        const updatedApplication = await Application.findByIdAndUpdate(
+            id,
+            { status: req.body.status },
+            {
+                returnDocument: 'after',
+                runValidators: true
+            }
+        );
+
+        res.status(200).json({
+            success: true,
+            message: 'Application status updated successfully',
+            data: updatedApplication
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Server error',
+            error: error instanceof Error ? error.message : 'Failed to update application status'
+        });
+    }
+}
+
 
 // export controller functions
 export const ApplyController = {
     applyToJob,
+    getMyApplications,
+    updateApplicationStatus
 }
 
 

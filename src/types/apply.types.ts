@@ -26,3 +26,8 @@ export type CreateApplicationData = {
   coverLetter?: string;
   resumeUrl?: string;
 };
+
+
+export type UpdateApplicationData = {
+  status: ApplicationStatus;
+};
