@@ -2,7 +2,7 @@
 
 This API server provides endpoints for authentication, job postings, application submissions, and an AI-powered chat system based on a robust Node.js, Express, and MongoDB backend using MVC architecture.
 
-- Link : 
+- Link : https://hire-me-backend-server-with-mvc-arc.vercel.app
 
 ## Getting Started
 
