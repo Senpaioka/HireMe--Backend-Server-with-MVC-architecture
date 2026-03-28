@@ -36,5 +36,11 @@ ${context}
     ],
   });
 
-  return response.choices[0].message.content;
+  const choice = response.choices?.[0];
+
+  if (!choice || !choice.message || !choice.message.content) {
+    throw new Error('Invalid AI response');
+  }
+
+  return choice.message.content;
 };
